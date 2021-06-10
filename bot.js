@@ -118,12 +118,12 @@ function getRandomKwMsg(num, clone) {
     return messages[Math.floor(Math.random() * messages.length)];
 }
 
-function initUser(id, hunt) {
+function initUser(id) {
     const now = new Date().getTime();
     users[id] = {
         cagedweebs: 0,
         killedweebs: 0,
-        lasthunt: hunt ? new Date().getTime() : 0,
+        lasthunt: 0,
         lastmsg: new Date().getTime()
     };
     leaderboard.push({id, score: 0});
@@ -152,15 +152,14 @@ function onMessageHandler(target, context, msg, self) {
     if (commands.includes(words[0])) {
         lastMsg = now;
         if (user) user.lastmsg = now;
-        else user = initUser(userId, words[0] == '^hw' || words[0] == '^huntweebs');
+        else user = initUser(userId);
     }
     else return;
 
     switch (words[0]) {
         case '^huntweebs':
         case '^hw':
-            const currentTime = new Date();
-            const sinceLastHunt = currentTime.getTime() - user.lasthunt;
+            const sinceLastHunt = now - user.lasthunt;
 
             if (sinceLastHunt < kwTimeLimit && (user.cagedweebs > 0 || user.killedweebs > 0)) {
                 const remaining = kwTimeLimit - sinceLastHunt;
@@ -169,7 +168,7 @@ function onMessageHandler(target, context, msg, self) {
             else {
                 const result = Math.floor(Math.random() * 70) + 50;
                 user.cagedweebs += result;
-                user.lasthunt = new Date().getTime();
+                user.lasthunt = now;
                 writeJson('users.json', users);
                 updateLeaderboard(userId);
                 sayMsg(target, `${context.username}, you caught ${result} weebs and you now have ${user.cagedweebs} in the cage. Type ^kw (#) to slaughter them! NaM`);
