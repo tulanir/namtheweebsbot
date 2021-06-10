@@ -45,10 +45,12 @@ function log(msg) {
     console.log(`[${timestamp(new Date())}] ${msg}`);
 }
 
-// todo: only log if say is successful
 function sayMsg(channel, msg) {
-    client.say(channel, msg);
-    log(`* Said "${msg}" in ${channel}`);
+    client.say(channel, msg).then(value => {
+        log(value);
+    }, reason => {
+        log('REJECTED: ' + reason);
+    });
 }
 
 rl.on('line', (line) => {
@@ -67,7 +69,7 @@ rl.on('line', (line) => {
 });
 
 function writeJson(filename, obj) {
-    fs.writeFile(filename, JSON.stringify(obj, null, 4), (err) => {
+    fs.writeFile(filename, JSON.stringify(obj), (err) => {
         if (err) throw err;
     });
 }
@@ -189,6 +191,11 @@ function onMessageHandler(target, context, msg, self) {
 
             const rank = getLeaderboardIndex(userId) + 1;
             sayMsg(target, `${context.username}, you have ${user.cagedweebs} ${user.cagedweebs == 1 ? 'weeb' : 'weebs'} in the cage and you've killed ${user.killedweebs} of them, placing you at a global #${rank}! hackerCD`);
+            break;
+
+        case '^help':
+        case '^commands':
+            sayMsg(target, 'Available commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank')
             break;
     }
 }
