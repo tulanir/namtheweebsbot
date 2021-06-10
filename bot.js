@@ -161,7 +161,7 @@ function onMessageHandler(target, context, msg, self) {
 
             if (sinceLastHunt < kwTimeLimit && (user.cagedweebs > 0 || user.killedweebs > 0)) {
                 const remaining = kwTimeLimit - sinceLastHunt;
-                sayMsg(target, `${context.username}, you already hunted some weebs recently, come back in ${msToMins(remaining)} hackerCD`);
+                sayMsg(target, `${context.username}, you already hunted some weebs recently, come back in ${msToMins(remaining)} GachiPls`);
             }
 
             else {
@@ -195,8 +195,8 @@ function onMessageHandler(target, context, msg, self) {
                     sayMsg(target, `${context.username}, ${getRandomKwMsg(num, clone)} There are now ${user.cagedweebs} weebs in the cage. ${clone ? 'FeelsBadMan' : 'FeelsGoodMan'}`);
                 }
             }
-            else {
-                sayMsg(target, `${context.username}, number of weebs must be positive! 4HEad`);
+            else if (!num || num <= 0) {
+                sayMsg(target, `${context.username}, invalid number of weebs hackerCD`);
             }
             break;
 
