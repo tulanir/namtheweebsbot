@@ -24,8 +24,8 @@ client.connect();
 
 var users, leaderboard = []; //descending order of points (world #1 is at index 0)
 const kwTimeLimit = 20 * 60 * 1000; //milliseconds
-const globalCooldown = 10 * 1000;
-const userCooldown = 30 * 1000;
+const globalCooldown = 5 * 1000;
+const userCooldown = 15 * 1000;
 const cloneProbability = 0.27;
 const commands = ['^help','^commands','^weebstats','^weebrank','^weebs','^killweebs','^kw','^huntweebs','^hw','!nam_the_weebs_bot','!namtheweebsbot'];
 var lastMsg = 0; //millisecond timestamp used for global cooldown
@@ -145,16 +145,16 @@ function onMessageHandler(target, context, msg, self) {
 
     const words = msg.split(' ');
     const now = new Date().getTime();
-    if (now - lastMsg < globalCooldown) return;
-    if (commands.includes(words[0])) lastMsg = now;
-    else return;
-
     const userId = context['user-id'];
     var user = users[userId];
 
-    if (user && now - user.lastmsg < userCooldown) return;
-    if (user) user.lastmsg = now;
-    else user = initUser(userId, words[0] == '^hw' || words[0] == '^huntweebs');
+    if (now - lastMsg < globalCooldown || user && now - user.lastmsg < userCooldown) return;
+    if (commands.includes(words[0])) {
+        lastMsg = now;
+        if (user) user.lastmsg = now;
+        else user = initUser(userId, words[0] == '^hw' || words[0] == '^huntweebs');
+    }
+    else return;
 
     switch (words[0]) {
         case '^huntweebs':
