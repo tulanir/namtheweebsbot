@@ -195,6 +195,9 @@ function onMessageHandler(target, context, msg, self) {
                     sayMsg(target, `${context.username}, ${getRandomKwMsg(num, clone)} There are now ${user.cagedweebs} weebs in the cage. ${clone ? 'FeelsBadMan' : 'FeelsGoodMan'}`);
                 }
             }
+            else {
+                sayMsg(target, `${context.username}, number of weebs must be positive! 4HEad`);
+            }
             break;
 
         case '^weebstats':
