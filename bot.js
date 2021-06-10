@@ -5,7 +5,7 @@ const readline = require('readline');
 const client = new tmi.client({
     identity: {
         username: 'nam_the_weebs_bot',
-        password: 'Oauth token here'
+        password: 'oauth token here'
     },
     channels: [
         'forsen'
@@ -24,6 +24,10 @@ client.connect();
 
 var users, leaderboard = []; //descending order of points (world #1 is at index 0)
 const kwTimeLimit = 20 * 60 * 1000; //milliseconds
+const globalCooldown = 10 * 1000;
+const userCooldown = 30 * 1000;
+const commands = ['^help','^commands','^weebstats','^weebrank','^weebs','^killweebs','^kw','^huntweebs','^hw','!nam_the_weebs_bot','!namtheweebsbot'];
+var lastMsg = 0;
 
 //Returns an HH:MM:SS-format timestamp of given date.
 function timestamp(date) {
@@ -51,6 +55,7 @@ function sayMsg(channel, msg) {
     }, reason => {
         log('REJECTED: ' + reason);
     });
+    log('in ' + channel + ': ' + msg);
 }
 
 rl.on('line', (line) => {
@@ -111,11 +116,13 @@ function getRandomKwMsg(num, clone) {
     return messages[Math.floor(Math.random() * messages.length)];
 }
 
-function initUser(id) {
+function initUser(id, hunt) {
+    const now = new Date().getTime();
     users[id] = {
         cagedweebs: 0,
         killedweebs: 0,
-        lasthunt: new Date().getTime()
+        lasthunt: hunt ? new Date().getTime() : 0,
+        lastmsg: new Date().getTime()
     };
     leaderboard.push({id, score: 0});
     return users[id];
@@ -133,16 +140,26 @@ function updateLeaderboard(id) {
 
 function onMessageHandler(target, context, msg, self) {
     if (self) return;
-    //if (context['user-id'] == 694576668) return; //darrellleroiiiiiiiiiiiiii
+
+    const now = new Date().getTime();
+    if (now - lastMsg < globalCooldown) return;
 
     const words = msg.split(' ');
     const userId = context['user-id'];
     var user = users[userId];
 
+    if (user && now - user.lastmsg < userCooldown) return;
+
+    if (commands.includes(words[0])) lastMsg = now;
+    else return;
+    
+    if (user) user.lastmsg = now;
+    else user = initUser(userId, words[0] == '^hw' || words[0] == '^huntweebs');
+
     switch (words[0]) {
         case '^huntweebs':
         case '^hw':
-            if (!user) user = initUser(userId);
+            if (!user) user = initUser(userId, true);
 
             const currentTime = new Date();
             const sinceLastHunt = currentTime.getTime() - user.lasthunt;
@@ -158,13 +175,13 @@ function onMessageHandler(target, context, msg, self) {
                 user.lasthunt = new Date().getTime();
                 writeJson('users.json', users);
                 updateLeaderboard(userId);
-                sayMsg(target, `${context.username}, you caught ${result} weebs and you now have ${user.cagedweebs} in the cage. Type ^kw to slaughter them! NaM`);
+                sayMsg(target, `${context.username}, you caught ${result} weebs and you now have ${user.cagedweebs} in the cage. Type ^kw (#) to slaughter them! NaM`);
             }
             break;
 
         case '^killweebs':
         case '^kw':
-            if (!user) user = initUser(userId);
+            if (!user) user = initUser(userId, false);
 
             const num = words[1] == 'all' ? user.cagedweebs : parseInt(words[1]);
             
@@ -190,7 +207,7 @@ function onMessageHandler(target, context, msg, self) {
         case '^weebstats':
         case '^weebrank':
         case '^weebs':
-            if (!user) user = initUser(userId);
+            if (!user) user = initUser(userId, false);
 
             const rank = getLeaderboardIndex(userId) + 1;
             sayMsg(target, `${context.username}, you have ${user.cagedweebs} ${user.cagedweebs == 1 ? 'weeb' : 'weebs'} in the cage and you've killed ${user.killedweebs} of them, placing you at a global #${rank}! hackerCD`);
@@ -198,7 +215,12 @@ function onMessageHandler(target, context, msg, self) {
 
         case '^help':
         case '^commands':
-            sayMsg(target, 'Available commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs')
+            sayMsg(target, 'Available commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs. global CD 10s, user CD 30s')
+            break;
+        
+        case '!nam_the_weebs_bot':
+        case '!namtheweebsbot':
+            sayMsg(target, 'This bot is a reimplementation of spergbot02. The owner is tuulanir. github/tulanir/namtheweebsbot');
             break;
     }
 }
