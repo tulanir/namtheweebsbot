@@ -111,7 +111,7 @@ function getRandomKwMsg(num, clone) {
         `you nammed ${numweebs} out of existence.`,
         `you relentlessly slaughtered ${numweebs} with a lawnmower MEGALUL`,
         `(${numweebs}) BOP NaM`,
-        `you forced ${numweebs} to watch endless minecraft speedruns forsenInsane`
+        `you forced ${numweebs} to watch endless minecraft speedruns forsenInsane`,
         `you fisted ${numweebs} gachiBASS`
     ];
 
@@ -210,7 +210,7 @@ function onMessageHandler(target, context, msg, self) {
 
         case '^help':
         case '^commands':
-            sayMsg(target, 'Available commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs. global CD 10s, user CD 30s')
+            sayMsg(target, 'Available commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs. global CD 5s, user CD 15s')
             break;
         
         case '!nam_the_weebs_bot':
