@@ -5,7 +5,7 @@ const readline = require('readline');
 const client = new tmi.client({
     identity: {
         username: 'nam_the_weebs_bot',
-        password: 'OAUTH TOKEN HERE'
+        password: 'Oauth token here'
     },
     channels: [
         'forsen'
@@ -133,6 +133,8 @@ function updateLeaderboard(id) {
 
 function onMessageHandler(target, context, msg, self) {
     if (self) return;
+    //if (context['user-id'] == 694576668) return; //darrellleroiiiiiiiiiiiiii
+
     const words = msg.split(' ');
     const userId = context['user-id'];
     var user = users[userId];
@@ -156,7 +158,7 @@ function onMessageHandler(target, context, msg, self) {
                 user.lasthunt = new Date().getTime();
                 writeJson('users.json', users);
                 updateLeaderboard(userId);
-                sayMsg(target, `${context.username}, you caught ${result} weebs and you now have ${user.cagedweebs} in the cage. Type ^kw (amount) to slaughter them! NaM`);
+                sayMsg(target, `${context.username}, you caught ${result} weebs and you now have ${user.cagedweebs} in the cage. Type ^kw to slaughter them! NaM`);
             }
             break;
 
@@ -166,7 +168,7 @@ function onMessageHandler(target, context, msg, self) {
 
             const num = words[1] == 'all' ? user.cagedweebs : parseInt(words[1]);
             
-            if (num) {
+            if (num > 0) {
                 if (user.cagedweebs < num)
                     sayMsg(target, `${context.username}, you only have ${user.cagedweebs} in the cage. hackerCD`);
                 else {
@@ -187,6 +189,7 @@ function onMessageHandler(target, context, msg, self) {
 
         case '^weebstats':
         case '^weebrank':
+        case '^weebs':
             if (!user) user = initUser(userId);
 
             const rank = getLeaderboardIndex(userId) + 1;
@@ -195,7 +198,7 @@ function onMessageHandler(target, context, msg, self) {
 
         case '^help':
         case '^commands':
-            sayMsg(target, 'Available commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank')
+            sayMsg(target, 'Available commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs')
             break;
     }
 }
