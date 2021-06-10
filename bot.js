@@ -141,26 +141,22 @@ function updateLeaderboard(id) {
 function onMessageHandler(target, context, msg, self) {
     if (self) return;
 
+    const words = msg.split(' ');
     const now = new Date().getTime();
     if (now - lastMsg < globalCooldown) return;
+    if (commands.includes(words[0])) lastMsg = now;
+    else return;
 
-    const words = msg.split(' ');
     const userId = context['user-id'];
     var user = users[userId];
 
     if (user && now - user.lastmsg < userCooldown) return;
-
-    if (commands.includes(words[0])) lastMsg = now;
-    else return;
-    
     if (user) user.lastmsg = now;
     else user = initUser(userId, words[0] == '^hw' || words[0] == '^huntweebs');
 
     switch (words[0]) {
         case '^huntweebs':
         case '^hw':
-            if (!user) user = initUser(userId, true);
-
             const currentTime = new Date();
             const sinceLastHunt = currentTime.getTime() - user.lasthunt;
 
@@ -181,8 +177,6 @@ function onMessageHandler(target, context, msg, self) {
 
         case '^killweebs':
         case '^kw':
-            if (!user) user = initUser(userId, false);
-
             const num = words[1] == 'all' ? user.cagedweebs : parseInt(words[1]);
             
             if (num > 0) {
@@ -207,8 +201,6 @@ function onMessageHandler(target, context, msg, self) {
         case '^weebstats':
         case '^weebrank':
         case '^weebs':
-            if (!user) user = initUser(userId, false);
-
             const rank = getLeaderboardIndex(userId) + 1;
             sayMsg(target, `${context.username}, you have ${user.cagedweebs} ${user.cagedweebs == 1 ? 'weeb' : 'weebs'} in the cage and you've killed ${user.killedweebs} of them, placing you at a global #${rank}! hackerCD`);
             break;
