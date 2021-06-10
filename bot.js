@@ -55,7 +55,6 @@ function sayMsg(channel, msg) {
     }, reason => {
         log('REJECTED: ' + reason);
     });
-    log('in ' + channel + ': ' + msg);
 }
 
 rl.on('line', (line) => {
