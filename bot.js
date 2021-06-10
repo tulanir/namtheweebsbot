@@ -28,7 +28,7 @@ const globalCooldown = 10 * 1000;
 const userCooldown = 30 * 1000;
 const cloneProbability = 0.27;
 const commands = ['^help','^commands','^weebstats','^weebrank','^weebs','^killweebs','^kw','^huntweebs','^hw','!nam_the_weebs_bot','!namtheweebsbot'];
-var lastMsg = 0;
+var lastMsg = 0; //millisecond timestamp used for global cooldown
 
 //Returns an HH:MM:SS-format timestamp of given date.
 function timestamp(date) {
@@ -110,7 +110,9 @@ function getRandomKwMsg(num, clone) {
         `you tried out your constitutionally granted artillery gun on ${numweebs} KKonaW`,
         `you nammed ${numweebs} out of existence.`,
         `you relentlessly slaughtered ${numweebs} with a lawnmower MEGALUL`,
-        `(${numweebs}) BOP NaM`
+        `(${numweebs}) BOP NaM`,
+        `you forced ${numweebs} to watch endless minecraft speedruns forsenInsane`
+        `you fisted ${numweebs} gachiBASS`
     ];
 
     return messages[Math.floor(Math.random() * messages.length)];
