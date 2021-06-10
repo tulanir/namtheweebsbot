@@ -26,6 +26,7 @@ var users, leaderboard = []; //descending order of points (world #1 is at index 
 const kwTimeLimit = 20 * 60 * 1000; //milliseconds
 const globalCooldown = 10 * 1000;
 const userCooldown = 30 * 1000;
+const cloneProbability = 0.27;
 const commands = ['^help','^commands','^weebstats','^weebrank','^weebs','^killweebs','^kw','^huntweebs','^hw','!nam_the_weebs_bot','!namtheweebsbot'];
 var lastMsg = 0;
 
@@ -181,7 +182,7 @@ function onMessageHandler(target, context, msg, self) {
                 if (user.cagedweebs < num)
                     sayMsg(target, `${context.username}, you only have ${user.cagedweebs} in the cage. hackerCD`);
                 else {
-                    const clone = Math.random() < 0.27;
+                    const clone = Math.random() < cloneProbability;
                     if (!clone) {
                         user.cagedweebs -= num;
                         user.killedweebs += num;
@@ -196,7 +197,7 @@ function onMessageHandler(target, context, msg, self) {
             }
             else if (!num || num <= 0)
                 sayMsg(target, `${context.username}, invalid number of weebs hackerCD`);
-            
+
             break;
 
         case '^weebstats':
