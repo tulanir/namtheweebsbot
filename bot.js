@@ -33,7 +33,7 @@ client.on('connected', onConnectedHandler);
 client.connect();
 
 var users, leaderboard = []; //descending order of points (world #1 is at index 0)
-const kwTimeLimit = 20 * 60 * 1000; //milliseconds
+const hwTimeLimit = 20 * 60 * 1000; //milliseconds
 const globalCooldown = 5 * 1000;
 const userCooldown = 15 * 1000;
 const cloneProbability = 0.27;
@@ -173,8 +173,8 @@ function onMessageHandler(target, context, msg, self) {
         case '^hw':
             const sinceLastHunt = now - user.lasthunt;
 
-            if (sinceLastHunt < kwTimeLimit && (user.cagedweebs > 0 || user.killedweebs > 0)) {
-                const remaining = kwTimeLimit - sinceLastHunt;
+            if (sinceLastHunt < hwTimeLimit && (user.cagedweebs > 0 || user.killedweebs > 0)) {
+                const remaining = hwTimeLimit - sinceLastHunt;
                 sayMsg(target, `${context.username}, you already hunted some weebs recently, come back in ${msToMins(remaining)} GachiPls`);
             }
             else {
@@ -265,7 +265,7 @@ function onMessageHandler(target, context, msg, self) {
 
             req.on('error', error => {
                 log(error);
-                sayMsg(`${context.username}, error getting user data from twitch API eShrug`);
+                sayMsg(`${context.username}, error from twitch API eShrug`);
             });
 
             req.end();
