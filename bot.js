@@ -101,6 +101,7 @@ function onConnectedHandler(addr, port) {
             id,
             score: users[id].cagedweebs + users[id].killedweebs
         });
+    
     leaderboard.sort((a, b) => b.score - a.score);
 
     log('* NaMbot is now running.');
@@ -250,18 +251,15 @@ function onMessageHandler(target, context, msg, self) {
                         sayMsg(target, `${context.username}, error parsing user data eShrug`);
                         return;
                     }
-                    let top = [];
-                    for (const leader of topData.data) {
-                        top.push({
-                            display_name: leader.display_name,
-                            score: leaderboard[getLeaderboardIndex(leader.id)].score
-                        });
-                    }
+                    let top = topData.data.map((leader) => ({
+                        display_name: leader.display_name,
+                        score: leaderboard[getLeaderboardIndex(leader.id)].score
+                    }));
                     top.sort((a, b) => b.score - a.score);
                     let message = `champions' leaderboard forsenCD `;
                     for (let i = 0; i < numberOfUsersInLeaderboard; i++)
                         message += `#${i+1}: ${top[i].display_name}, ${top[i].score}p. `;
-                    sayMsg(target, message);
+                    sayMsg(target, message.trim());
                 });
             });
 
