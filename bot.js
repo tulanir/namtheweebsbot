@@ -34,8 +34,8 @@ client.connect();
 
 var users, leaderboard = []; //descending order of points (world #1 is at index 0)
 const kwTimeLimit = 20 * 60 * 1000; //milliseconds
-const globalCooldown = 5 * 1000; //Must be multiple of 1000
-const userCooldown = 15 * 1000; //Must be multiple of 1000
+const globalCooldown = 5 * 1000;
+const userCooldown = 15 * 1000;
 const cloneProbability = 0.27;
 const numberOfUsersInLeaderboard = 3;
 const commands = ['^help','^commands','^weebstats','^weebrank','^weebs','^killweebs','^kw','^huntweebs','^hw',`^top${numberOfUsersInLeaderboard}`,'^leaderboards','^leaderboard','!nam_the_weebs_bot','!namtheweebsbot'];
@@ -221,7 +221,7 @@ function onMessageHandler(target, context, msg, self) {
 
         case '^help':
         case '^commands':
-            sayMsg(target, `Commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs, ^top${numberOfUsersInLeaderboard}. global CD ${globalCooldown / 1000}s, user CD ${userCooldown / 1000}s`)
+            sayMsg(target, `Commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs, ^top${numberOfUsersInLeaderboard}. global CD ${Math.ceil(globalCooldown / 1000)}s, user CD ${Math.ceil(userCooldown / 1000)}s`)
             break;
         
         case '!nam_the_weebs_bot':
