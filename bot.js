@@ -5,12 +5,22 @@ const readline = require('readline');
 const client = new tmi.client({
     identity: {
         username: 'nam_the_weebs_bot',
-        password: 'oauth token here'
+        password: '<OAUTH TOKEN>'
     },
     channels: [
         'forsen'
     ]
 });
+
+const httpsOpts = {
+    hostname: 'api.twitch.tv',
+    port: 443,
+    method: 'GET',
+    headers: {
+        'Authorization': 'Bearer <BEARER AUTH TOKEN>',
+        'Client-ID': '<CLIENT ID>'
+    }
+};
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -24,10 +34,11 @@ client.connect();
 
 var users, leaderboard = []; //descending order of points (world #1 is at index 0)
 const kwTimeLimit = 20 * 60 * 1000; //milliseconds
-const globalCooldown = 5 * 1000;
-const userCooldown = 15 * 1000;
+const globalCooldown = 5 * 1000; //Must be multiple of 1000
+const userCooldown = 15 * 1000; //Must be multiple of 1000
 const cloneProbability = 0.27;
-const commands = ['^help','^commands','^weebstats','^weebrank','^weebs','^killweebs','^kw','^huntweebs','^hw','!nam_the_weebs_bot','!namtheweebsbot'];
+const numberOfUsersInLeaderboard = 3;
+const commands = ['^help','^commands','^weebstats','^weebrank','^weebs','^killweebs','^kw','^huntweebs','^hw',`^top${numberOfUsersInLeaderboard}`,'^leaderboards','^leaderboard','!nam_the_weebs_bot','!namtheweebsbot'];
 var lastMsg = 0; //millisecond timestamp used for global cooldown
 
 //Returns an HH:MM:SS-format timestamp of given date.
@@ -210,12 +221,56 @@ function onMessageHandler(target, context, msg, self) {
 
         case '^help':
         case '^commands':
-            sayMsg(target, 'Available commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs. global CD 5s, user CD 15s')
+            sayMsg(target, `Commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs, ^top${numberOfUsersInLeaderboard}. global CD ${globalCooldown / 1000}s, user CD ${userCooldown / 1000}s`)
             break;
         
         case '!nam_the_weebs_bot':
         case '!namtheweebsbot':
             sayMsg(target, 'This bot is a reimplementation of spergbot02. The owner is tuulanir. github/tulanir/namtheweebsbot');
+            break;
+
+        case `^top${numberOfUsersInLeaderboard}`:
+        case '^leaderboards':
+        case '^leaderboard':
+            httpsOpts.path = '/helix/users?id=';
+            for (let i = 0; i < numberOfUsersInLeaderboard; i++)
+                httpsOpts.path += leaderboard[i].id + '&id=';
+            httpsOpts.path = httpsOpts.path.slice(0, -4); //remove final "&id="
+            const req = https.request(httpsOpts, res => {
+                let jsonStr = '';
+                res.on('data', chunk => {
+                    jsonStr += chunk;
+                });
+                res.on('end', () => {
+                    try {
+                        var topData = JSON.parse(jsonStr);
+                    }
+                    catch (error) {
+                        log(error);
+                        sayMsg(target, `${context.username}, error parsing user data eShrug`);
+                        return;
+                    }
+                    let top = [];
+                    for (const leader of topData.data) {
+                        top.push({
+                            display_name: leader.display_name,
+                            score: leaderboard[getLeaderboardIndex(leader.id)].score
+                        });
+                    }
+                    top.sort((a, b) => b.score - a.score);
+                    let message = `champions' leaderboard forsenCD `;
+                    for (let i = 0; i < numberOfUsersInLeaderboard; i++)
+                        message += `#${i+1}: ${top[i].display_name}, ${top[i].score}p. `;
+                    sayMsg(target, message);
+                });
+            });
+
+            req.on('error', error => {
+                log(error);
+                sayMsg(`${context.username}, error getting user data from twitch API eShrug`);
+            });
+
+            req.end();
             break;
     }
 }
