@@ -43,7 +43,7 @@ var lastMsg = 0; //millisecond timestamp used for global cooldown
 
 //Returns an HH:MM:SS-format timestamp of given date.
 function timestamp(date) {
-    const t = [date.getHours(), date.getMinutes(), date.getSeconds()].map((x) => {
+    const t = [date.getHours(), date.getMinutes(), date.getSeconds()].map(x => {
         if (x < 10) return `0${x}`;
         else return x;
     });
@@ -69,7 +69,7 @@ function sayMsg(channel, msg) {
     });
 }
 
-rl.on('line', (line) => {
+rl.on('line', line => {
     const words = line.trim().split(' ');
     switch (words[0]) {
         case 'say':
@@ -85,7 +85,7 @@ rl.on('line', (line) => {
 });
 
 function writeJson(filename, obj) {
-    fs.writeFile(filename, JSON.stringify(obj), (err) => {
+    fs.writeFile(filename, JSON.stringify(obj), err => {
         if (err) throw err;
     });
 }
@@ -143,7 +143,7 @@ function initUser(id) {
 }
 
 function getLeaderboardIndex(id) {
-    return leaderboard.findIndex((entry) => entry.id == id);
+    return leaderboard.findIndex(entry => entry.id == id);
 }
 
 function updateLeaderboard(id) {
@@ -251,7 +251,7 @@ function onMessageHandler(target, context, msg, self) {
                         sayMsg(target, `${context.username}, error parsing user data eShrug`);
                         return;
                     }
-                    let top = topData.data.map((leader) => ({
+                    let top = topData.data.map(leader => ({
                         display_name: leader.display_name,
                         score: leaderboard[getLeaderboardIndex(leader.id)].score
                     }));
