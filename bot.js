@@ -210,7 +210,6 @@ function onMessageHandler(target, context, msg, self) {
             }
             else if (!num || num <= 0)
                 sayMsg(target, `${context.username}, invalid number of weebs hackerCD`);
-
             break;
 
         case '^weebstats':
