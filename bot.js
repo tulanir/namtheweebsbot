@@ -1,6 +1,7 @@
 const tmi = require('tmi.js');
 const fs = require('fs');
 const readline = require('readline');
+const https = require('https');
 
 const client = new tmi.client({
     identity: {
