@@ -23,6 +23,16 @@ const httpsOpts = {
     }
 };
 
+const banphraseOpts = {
+    hostname: 'forsen.tv',
+    path: '/api/v1/banphrases/test',
+    port: 443,
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+};
+
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -34,12 +44,12 @@ client.on('connected', onConnectedHandler);
 client.connect();
 
 var users, leaderboard = []; //descending order of points (world #1 is at index 0)
-const hwTimeLimit = 20 * 60 * 1000; //milliseconds
+const hwCooldown = 20 * 60 * 1000; //milliseconds
 const globalCooldown = 5 * 1000;
 const userCooldown = 15 * 1000;
 const cloneProbability = 0.27;
 const numberOfUsersInLeaderboard = 5;
-const commands = ['^help','^commands','^weebstats','^weebrank','^weebs','^killweebs','^kw','^huntweebs','^hw',`^top${numberOfUsersInLeaderboard}`,'^leaderboards','^leaderboard','!nam_the_weebs_bot','^nam_the_weebs_bot'];
+const commands = ['^help', '^commands', '^weebstats', '^weebrank', '^weebs', '^killweebs', '^kw', '^huntweebs', '^hw', `^top${numberOfUsersInLeaderboard}`, '^leaderboards', '^leaderboard', '!nam_the_weebs_bot', '^nam_the_weebs_bot'];
 var lastMsg = 0; //millisecond timestamp used for global cooldown
 
 //Returns an HH:MM:SS-format timestamp of given date.
@@ -63,11 +73,36 @@ function log(msg) {
 }
 
 function sayMsg(channel, msg) {
-    client.say(channel, msg).then(value => {
-        log(value);
-    }, reason => {
-        log('REJECTED: ' + reason);
+    const data = JSON.stringify({message: msg});
+    banphraseOpts.headers['Content-Length'] = data.length;
+
+    const req = https.request(banphraseOpts, res => {
+        let resStr = '';
+        res.on('data', chunk => {
+            resStr += chunk;
+        });
+
+        res.on('end', () => {
+            const response = JSON.parse(resStr);
+            if (!response.banned) {
+                client.say(channel, msg).then(value => {
+                    log(value);
+                });
+            }
+            else {
+                client.say(channel, 'Banphrased.');
+            }
+        });
     });
+
+    req.on('error', error => {
+        log(error);
+        client.say(channel, 'Error accessing banphrase API');
+    });
+
+    log('WRITING ' + data);
+    req.write(data);
+    req.end();
 }
 
 rl.on('line', line => {
@@ -102,7 +137,7 @@ function onConnectedHandler(addr, port) {
             id,
             score: users[id].cagedweebs + users[id].killedweebs
         });
-    
+
     leaderboard.sort((a, b) => b.score - a.score);
 
     log('* NaMbot is now running.');
@@ -117,7 +152,7 @@ function getRandomKwMsg(num, clone) {
         `you changed your mind after seeing ${numweebs} multiplying themselves.`,
         `you accidentally opened a portal that summoned ${numweebs}!`,
         `you opened the cage to enter it, but ${numweebs} aimlessly wandered in.`
-    ]:[
+    ] : [
         `you fed ${numweebs} some lingweebni 4HEad`,
         `you dropped a comedically timed piano on ${numweebs}!`,
         `you tried out your constitutionally granted artillery gun on ${numweebs} KKonaW`,
@@ -140,7 +175,7 @@ function initUser(id) {
         lasthunt: 0,
         lastmsg: new Date().getTime()
     };
-    leaderboard.push({id, score: 0});
+    leaderboard.push({ id, score: 0 });
     return users[id];
 }
 
@@ -175,8 +210,8 @@ function onMessageHandler(target, context, msg, self) {
         case '^hw':
             const sinceLastHunt = now - user.lasthunt;
 
-            if (sinceLastHunt < hwTimeLimit && (user.cagedweebs > 0 || user.killedweebs > 0)) {
-                const remaining = hwTimeLimit - sinceLastHunt;
+            if (sinceLastHunt < hwCooldown && (user.cagedweebs > 0 || user.killedweebs > 0)) {
+                const remaining = hwCooldown - sinceLastHunt;
                 sayMsg(target, `${context.username}, you already hunted some weebs recently, come back in ${msToMins(remaining)} GachiPls`);
             }
             else {
@@ -192,7 +227,7 @@ function onMessageHandler(target, context, msg, self) {
         case '^killweebs':
         case '^kw':
             const num = words[1] == 'all' ? user.cagedweebs : parseInt(words[1]);
-            
+
             if (num > 0) {
                 if (user.cagedweebs < num)
                     sayMsg(target, `${context.username}, you only have ${user.cagedweebs} in the cage. hackerCD`);
@@ -225,7 +260,7 @@ function onMessageHandler(target, context, msg, self) {
         case '^commands':
             sayMsg(target, `Commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs, ^top${numberOfUsersInLeaderboard}. global CD ${Math.ceil(globalCooldown / 1000)}s, user CD ${Math.ceil(userCooldown / 1000)}s. points = caged + killed.`)
             break;
-        
+
         case '!nam_the_weebs_bot':
         case '^nam_the_weebs_bot':
             sayMsg(target, 'This bot is a reimplementation of spergbot02. The owner is tuulanir. github/tulanir/namtheweebsbot');
@@ -234,33 +269,30 @@ function onMessageHandler(target, context, msg, self) {
         case `^top${numberOfUsersInLeaderboard}`:
         case '^leaderboards':
         case '^leaderboard':
-            //huge chunk of code to get display names from user ID with twitch API
+            //huge chunk of code to get display names from user IDs with twitch API
             httpsOpts.path = '/helix/users?id=';
             for (let i = 0; i < numberOfUsersInLeaderboard; i++)
                 httpsOpts.path += leaderboard[i].id + '&id=';
             httpsOpts.path = httpsOpts.path.slice(0, -4); //remove final "&id="
             const req = https.request(httpsOpts, res => {
-                let jsonStr = '';
+                let resStr = '';
+
                 res.on('data', chunk => {
-                    jsonStr += chunk;
+                    resStr += chunk;
                 });
+
                 res.on('end', () => {
-                    try {
-                        var topData = JSON.parse(jsonStr);
-                    }
-                    catch (error) {
-                        log(error);
-                        sayMsg(target, `${context.username}, error parsing user data eShrug`);
-                        return;
-                    }
-                    let top = topData.data.map(leader => ({
+                    const topData = JSON.parse(resStr).data;
+                    let top = topData.map(leader => ({
                         display_name: leader.display_name,
                         score: leaderboard[getLeaderboardIndex(leader.id)].score
                     }));
                     top.sort((a, b) => b.score - a.score);
+
                     let message = `champions' leaderboard forsenCD `;
                     for (let i = 0; i < numberOfUsersInLeaderboard; i++)
-                        message += `#${i+1}: ${top[i].display_name}, ${top[i].score}p. `;
+                        message += `#${i + 1}: ${top[i].display_name}, ${top[i].score}p. `;
+
                     sayMsg(target, message.trim());
                 });
             });
