@@ -265,7 +265,7 @@ function onMessageHandler(target, context, msg, self) {
 
             req.on('error', error => {
                 log(error);
-                sayMsg(`${context.username}, error from twitch API eShrug`);
+                sayMsg(target, `${context.username}, error from twitch API eShrug`);
             });
 
             req.end();
