@@ -234,6 +234,7 @@ function onMessageHandler(target, context, msg, self) {
         case `^top${numberOfUsersInLeaderboard}`:
         case '^leaderboards':
         case '^leaderboard':
+            //huge chunk of code to get display names from user ID with twitch API
             httpsOpts.path = '/helix/users?id=';
             for (let i = 0; i < numberOfUsersInLeaderboard; i++)
                 httpsOpts.path += leaderboard[i].id + '&id=';
