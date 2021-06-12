@@ -38,8 +38,8 @@ const hwTimeLimit = 20 * 60 * 1000; //milliseconds
 const globalCooldown = 5 * 1000;
 const userCooldown = 15 * 1000;
 const cloneProbability = 0.27;
-const numberOfUsersInLeaderboard = 3;
-const commands = ['^help','^commands','^weebstats','^weebrank','^weebs','^killweebs','^kw','^huntweebs','^hw',`^top${numberOfUsersInLeaderboard}`,'^leaderboards','^leaderboard','!nam_the_weebs_bot','!namtheweebsbot'];
+const numberOfUsersInLeaderboard = 5;
+const commands = ['^help','^commands','^weebstats','^weebrank','^weebs','^killweebs','^kw','^huntweebs','^hw',`^top${numberOfUsersInLeaderboard}`,'^leaderboards','^leaderboard','!nam_the_weebs_bot','^nam_the_weebs_bot'];
 var lastMsg = 0; //millisecond timestamp used for global cooldown
 
 //Returns an HH:MM:SS-format timestamp of given date.
@@ -125,7 +125,8 @@ function getRandomKwMsg(num, clone) {
         `you relentlessly slaughtered ${numweebs} with a lawnmower MEGALUL`,
         `(${numweebs}) BOP NaM`,
         `you forced ${numweebs} to watch endless minecraft speedruns forsenInsane`,
-        `you fisted ${numweebs} gachiBASS`
+        `you fisted ${numweebs} gachiBASS`,
+        `you went to the golf course with ${numweebs} HotPokket 🏌🏻‍`
     ];
 
     return messages[Math.floor(Math.random() * messages.length)];
@@ -222,11 +223,11 @@ function onMessageHandler(target, context, msg, self) {
 
         case '^help':
         case '^commands':
-            sayMsg(target, `Commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs, ^top${numberOfUsersInLeaderboard}. global CD ${Math.ceil(globalCooldown / 1000)}s, user CD ${Math.ceil(userCooldown / 1000)}s`)
+            sayMsg(target, `Commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs, ^top${numberOfUsersInLeaderboard}. global CD ${Math.ceil(globalCooldown / 1000)}s, user CD ${Math.ceil(userCooldown / 1000)}s. points = caged + killed.`)
             break;
         
         case '!nam_the_weebs_bot':
-        case '!namtheweebsbot':
+        case '^nam_the_weebs_bot':
             sayMsg(target, 'This bot is a reimplementation of spergbot02. The owner is tuulanir. github/tulanir/namtheweebsbot');
             break;
 
