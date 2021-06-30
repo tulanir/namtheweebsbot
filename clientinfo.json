@@ -2,7 +2,7 @@
     {
         "identity": {
             "username": "nam_the_weebs_bot",
-            "password": "oauth:<OAUTH TOKEN>"
+            "password": "oauth:<OAUTH TOKEN> TESTTEST"
         },
         "channels": [
             "tuulanir"
