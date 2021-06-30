@@ -18,7 +18,7 @@ export function msToMins(ms: number) {
     else return `${Math.floor(secs / 60)}m${secs % 60}s`;
 }
 
-export function readJson(filename: string) {
+export function readJson(filename: string): object {
     return JSON.parse(fs.readFileSync(filename).toString());
 }
 

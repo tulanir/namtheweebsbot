@@ -1,21 +1,11 @@
 /// <reference path="decl.d.ts"/>
-import readline from 'readline';
+import {User, LeaderboardEntry, ClientInfo} from 'BotTypes';
 import MrDestructoidClient from './mrdestructoid';
 import * as utils from './utils';
-import {User, LeaderboardEntry} from 'BotTypes';
+import readline from 'readline';
 
-const client = new MrDestructoidClient({
-    identity: {
-        username: 'nam_the_weebs_bot',
-        password: '<OAUTH TOKEN>'
-    },
-    channels: [
-        'forsen'
-    ]
-}, {
-    'Authorization': '<BEARER TOKEN>',
-    'Client-Id': '<CLIENT ID>'
-}, 'https://forsen.tv');
+const clientInfo: ClientInfo = utils.readJson('clientinfo.json');
+const client = new MrDestructoidClient(clientInfo);
 
 var users: User[];
 var leaderboard: LeaderboardEntry[] = []; //descending order of points (world #1 is at index 0)
@@ -231,7 +221,7 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
                     displayName: leader.display_name,
                     score: getLeaderboardEntry(leader.id)!.score
                 })).sort((a, b) => b.score - a.score)
-                    .reduce((a, v, i) => a + `${i + 1}: ${v.displayName}, ${leaderboard[i].score}p. `,
+                    .reduce((a, v, i) => a + `${i + 1}: ${v.displayName}, ${v.score}p. `,
                         `champions' leaderboard forsenCD `);
                 client.say(target, message.trim());
             }

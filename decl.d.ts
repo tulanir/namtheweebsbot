@@ -1,3 +1,5 @@
+import {Options} from 'tmi.js';
+
 declare module 'BotTypes' {
     export interface User {
         id: string,
@@ -11,6 +13,10 @@ declare module 'BotTypes' {
         id: string,
         score: number
     }
+
+    export type ClientInfo = [
+        Options | {"Authorization": string; "Client-Id": string;} | string
+    ];
 }
 
 interface Array<T> {
