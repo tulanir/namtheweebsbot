@@ -221,9 +221,9 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
                     displayName: leader.display_name,
                     score: getLeaderboardEntry(leader.id)!.score
                 })).sort((a, b) => b.score - a.score)
-                    .reduce((a, v, i) => a + `${i + 1}: ${v.displayName}, ${v.score}p. `,
-                        `champions' leaderboard forsenCD `);
-                client.say(target, message.trim());
+                    .reduce((a, v, i) => a + ` ${i + 1}: ${v.displayName}, ${v.score}p.`,
+                        `champions' leaderboard forsenCD`);
+                client.say(target, message);
             }
             catch (error) {
                 utils.log(error);
