@@ -1,5 +1,3 @@
-import {Options} from 'tmi.js';
-
 declare module 'BotTypes' {
     export interface User {
         id: string,
@@ -15,7 +13,7 @@ declare module 'BotTypes' {
     }
 
     export type ClientInfo = [
-        Options | {"Authorization": string; "Client-Id": string;} | string
+        import('tmi.js').Options, {"Authorization": string; "Client-Id": string;}, string
     ];
 }
 

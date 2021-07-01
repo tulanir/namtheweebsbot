@@ -1,0 +1,16 @@
+[
+    {
+        "identity": {
+            "username": "nam_the_weebs_bot",
+            "password": "oauth:***"
+        },
+        "channels": [
+            "tuulanir"
+        ]
+    },
+    {
+        "Authorization": "Bearer ***",
+        "Client-Id": "***"
+    },
+    "https://forsen.tv"
+]

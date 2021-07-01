@@ -1,3 +1,4 @@
+import {ClientInfo} from 'BotTypes';
 import * as fs from 'fs';
 
 export function timestamp(date: Date) {
@@ -18,7 +19,7 @@ export function msToMins(ms: number) {
     else return `${Math.floor(secs / 60)}m${secs % 60}s`;
 }
 
-export function readJson(filename: string): object {
+export function readJson(filename: string): any {
     return JSON.parse(fs.readFileSync(filename).toString());
 }
 
