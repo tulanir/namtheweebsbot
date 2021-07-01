@@ -1,11 +1,11 @@
 [
     {
         "identity": {
-            "username": "nam_the_weebs_bot",
+            "username": "<bot username>",
             "password": "oauth:***"
         },
         "channels": [
-            "tuulanir"
+            "forsen"
         ]
     },
     {
