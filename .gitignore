@@ -1,5 +1,5 @@
-realclientinfo.txt
-httptest.js
-transform.js
+cc.js
+censoredclientinfo.json
+uncensoredclientinfo.json
 users/*
 !users/users.json

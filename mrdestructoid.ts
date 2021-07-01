@@ -24,7 +24,7 @@ export default class MrDestructoidClient {
         return new Promise((resolve, reject) => {
             this.pajbotAxiosInstance.post('/api/v1/banphrases/test', { message }).then(res => {
                 let response = res.data;
-                if (response && response.hasOwnProperty('banned')) {
+                if (response && response.hasOwnProperty('banned') && typeof response.banned == "boolean") {
                     resolve(response.banned);
                 }
                 else {
