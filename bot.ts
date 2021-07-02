@@ -172,11 +172,11 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
         case '^kw':
             const num = words[1] == 'all' ? user.cagedweebs : parseInt(words[1]);
 
-            if (user.cagedweebs < num) {
-                client.say(target, `${context.username}, you only have ${user.cagedweebs} in the cage. hackerCD`);
-            }
-            else if (!num || num <= 0) {
+            if (!num || num <= 0) {
                 client.say(target, `${context.username}, invalid number of weebs hackerCD`);
+            }
+            else if (user.cagedweebs < num) {
+                client.say(target, `${context.username}, you only have ${user.cagedweebs} in the cage. hackerCD`);
             }
             else if (num > 0) {
                 const clone = Math.random() < cloneProbability;
