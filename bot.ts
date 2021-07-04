@@ -8,7 +8,7 @@ const clientInfo: ClientInfo = utils.readJson('clientinfo.json');
 const client = new MrDestructoidClient(clientInfo);
 
 var users: User[];
-var leaderboard: LeaderboardEntry[] = []; //descending order of points (world #1 is at index 0)
+var leaderboard: LeaderboardEntry[]; //descending order of points (world #1 is at index 0)
 const usersPath = './users/users.json';
 const hwCooldown = 20 * 60 * 1000; //milliseconds
 const globalCooldown = 5 * 1000;
@@ -78,12 +78,10 @@ function onConnectedHandler(addr: any, port: any): void {
     users = utils.readJson(usersPath);
     leaderboard = [];
 
-    for (const user of users) {
-        leaderboard.push({
-            id: user.id,
-            score: user.cagedweebs + user.killedweebs
-        });
-    }
+    leaderboard = users.map(user => ({
+        id: user.id,
+        score: user.cagedweebs + user.killedweebs
+    }))
 
     leaderboard.sort((a, b) => b.score - a.score);
 
@@ -178,7 +176,7 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
             else if (user.cagedweebs < num) {
                 client.say(target, `${context.username}, you only have ${user.cagedweebs} in the cage. hackerCD`);
             }
-            else if (num > 0) {
+            else {
                 const clone = Math.random() < cloneProbability;
                 if (!clone) {
                     user.cagedweebs -= num;
@@ -192,7 +190,6 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
                 utils.writeJson(usersPath, users);
                 client.say(target, `${context.username}, ${getRandomKwMsg(num, clone)} There are now ${user.cagedweebs} weebs in the cage. ${clone ? 'FeelsBadMan' : 'FeelsGoodMan'}`);
             }
-
             break;
 
         case '^weebstats':
