@@ -123,6 +123,8 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
         user = initUser(context['display-name'], userId);
     }
 
+    user.displayname = context['display-name'];
+
     switch (words[0]) {
         case '^huntweebs':
         case '^hw':
