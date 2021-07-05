@@ -1,5 +1,6 @@
 cc.js
 censoredclientinfo.json
 uncensoredclientinfo.json
+transform.js
 users/*
 !users/users.json

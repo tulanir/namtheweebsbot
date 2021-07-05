@@ -1,5 +1,5 @@
 /// <reference path="decl.d.ts"/>
-import {User, LeaderboardEntry, ClientInfo} from 'BotTypes';
+import {User, ClientInfo} from 'BotTypes';
 import MrDestructoidClient from './mrdestructoid';
 import * as utils from './utils';
 import readline from 'readline';
@@ -7,8 +7,7 @@ import readline from 'readline';
 const clientInfo: ClientInfo = utils.readJson('clientinfo.json');
 const client = new MrDestructoidClient(clientInfo);
 
-var users: User[];
-var leaderboard: LeaderboardEntry[]; //descending order of points (world #1 is at index 0)
+var users: User[]; //descending order of points (world #1 is at index 0)
 const usersPath = './users/users.json';
 const hwCooldown = 20 * 60 * 1000; //milliseconds
 const globalCooldown = 5 * 1000;
@@ -57,33 +56,23 @@ rl.on('line', line => {
         case 'say':
             client.say(words[1], words.slice(2).join(' '));
             break;
-        case 'db':
-            if (words[1] == 'lb') {
-                for (const x of leaderboard) {
-                    console.log(x);
-                }
-            }
-            break;
     }
     rl.prompt();
 });
 
-Array.prototype.getRandomElement = function() {
+Array.prototype.getRandomElement = function () {
     return this[Math.floor(Math.random() * this.length)];
+}
+
+function sortUsers(): void {
+    users.sort((a, b) => (b.cagedweebs + b.killedweebs) - (a.cagedweebs + a.killedweebs));
 }
 
 function onConnectedHandler(addr: any, port: any): void {
     utils.log(`* Connected to ${addr}:${port}`);
 
     users = utils.readJson(usersPath);
-    leaderboard = [];
-
-    leaderboard = users.map(user => ({
-        id: user.id,
-        score: user.cagedweebs + user.killedweebs
-    }))
-
-    leaderboard.sort((a, b) => b.score - a.score);
+    sortUsers();
 
     utils.log('* NaMbot is now running.');
     rl.prompt();
@@ -95,8 +84,9 @@ function getRandomKwMsg(num: number, clone: boolean): string {
     return messages.getRandomElement().replace(/\$NUMWEEBS/g, numweebs);
 }
 
-function initUser(id: string): User {
+function initUser(displayname: string, id: string): User {
     const newUser: User = {
+        displayname,
         id,
         cagedweebs: 0,
         killedweebs: 0,
@@ -104,25 +94,11 @@ function initUser(id: string): User {
         lastmsg: new Date().getTime()
     };
     users.push(newUser);
-    leaderboard.push({id, score: 0});
     return newUser;
 }
 
 function getUser(id: string): User | undefined {
     return users.find(user => user.id == id);
-}
-
-function getLeaderboardEntry(id: string): LeaderboardEntry | undefined {
-    return leaderboard.find(entry => entry.id == id);
-}
-
-function updateLeaderboard(id: string): void {
-    const entry = getLeaderboardEntry(id);
-    if (entry) {
-        const user = getUser(id);
-        entry.score = user!.cagedweebs + user!.killedweebs;
-        leaderboard.sort((a, b) => b.score - a.score);
-    }
 }
 
 async function onMessageHandler(target: string, context: any, msg: string, self: any) {
@@ -144,7 +120,7 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
         user.lastmsg = now;
     }
     else {
-        user = initUser(userId);
+        user = initUser(context['display-name'], userId);
     }
 
     switch (words[0]) {
@@ -161,7 +137,7 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
                 user.cagedweebs += result;
                 user.lasthunt = now;
                 utils.writeJson(usersPath, users);
-                updateLeaderboard(userId);
+                sortUsers();
                 client.say(target, `${context.username}, you caught ${result} weebs and you now have ${user.cagedweebs} in the cage. Type ^kw (#) to slaughter them! NaM`);
             }
             break;
@@ -184,7 +160,7 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
                 }
                 else {
                     user.cagedweebs += num;
-                    updateLeaderboard(userId);
+                    sortUsers();
                 }
 
                 utils.writeJson(usersPath, users);
@@ -195,7 +171,7 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
         case '^weebstats':
         case '^weebrank':
         case '^weebs':
-            const rank = leaderboard.findIndex(x => x.id == userId) + 1;
+            const rank = users.findIndex(x => x.id == userId) + 1;
             client.say(target, `${context.username}, you have ${user.cagedweebs} ${user.cagedweebs == 1 ? 'weeb' : 'weebs'} in the cage and you've killed ${user.killedweebs} of them, placing you at a global #${rank}! hackerCD`);
             break;
 
@@ -213,13 +189,9 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
         case '^leaderboards':
         case '^leaderboard':
             try {
-                const leaderIds = leaderboard.slice(0, numberOfLeaders).map(x => x.id);
-                const message = (await client.getUsersFromIds(leaderIds)).map(leader => ({
-                    displayName: leader.display_name,
-                    score: getLeaderboardEntry(leader.id)!.score
-                })).sort((a, b) => b.score - a.score)
-                    .reduce((a, v, i) => a + ` ${i + 1}: ${v.displayName}, ${v.score}p.`,
-                        `champions' leaderboard forsenCD`);
+                const message = users.slice(0, numberOfLeaders)
+                    .reduce((a, v, i) => a + ` ${i + 1}: ${v.displayname}, ${v.cagedweebs + v.killedweebs}p.`,
+                        `champions' leaderboard forsenCD`);;
                 client.say(target, message);
             }
             catch (error) {
