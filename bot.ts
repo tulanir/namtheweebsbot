@@ -118,12 +118,11 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
 
     if (user) {
         user.lastmsg = now;
+        user.displayname = context['display-name'];
     }
     else {
         user = initUser(context['display-name'], userId);
     }
-
-    user.displayname = context['display-name'];
 
     switch (words[0]) {
         case '^huntweebs':
