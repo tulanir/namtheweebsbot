@@ -2,5 +2,6 @@ cc.js
 censoredclientinfo.json
 uncensoredclientinfo.json
 transform.js
+curlheaders.txt
 users/*
 !users/users.json

@@ -10,12 +10,13 @@ const client = new MrDestructoidClient(clientInfo);
 var users: User[]; //descending order of points (world #1 is at index 0)
 const usersPath = './users/users.json';
 const hwCooldown = 20 * 60 * 1000; //milliseconds
+const fwCooldown = 12 * 60 * 60 * 1000;
 const globalCooldown = 5 * 1000;
 const userCooldown = 15 * 1000;
 const cloneProbability = 0.27;
 const numberOfLeaders = 5;
 var lastMsg = 0; //millisecond timestamp used for global cooldown
-const commands = ['^help', '^commands', '^weebstats', '^weebrank', '^weebs', '^killweebs', '^kw', '^huntweebs', '^hw', `^top${numberOfLeaders}`, '^leaderboards', '^leaderboard', '!nam_the_weebs_bot', '^nam_the_weebs_bot'];
+const commands = ['^help', '^commands', '^weebstats', '^weebrank', '^weebs', '^killweebs', '^kw', '^huntweebs', '^hw', '^feedweebs', '^fw', `^top${numberOfLeaders}`, '^leaderboards', '^leaderboard', '!nam_the_weebs_bot', '^nam_the_weebs_bot'];
 const killMessages = [
     `you fed $NUMWEEBS some lingweebni 4HEad`,
     `you dropped a comedically timed piano on $NUMWEEBS!`,
@@ -78,10 +79,13 @@ function onConnectedHandler(addr: any, port: any): void {
     rl.prompt();
 }
 
+function getNumWeebs(num: number): string {
+    return num == 1 ? `${num} weeb`: `${num} weebs`;
+}
+
 function getRandomKwMsg(num: number, clone: boolean): string {
-    const numweebs = num == 1 ? '1 weeb' : `${num} weebs`;
     const messages = clone ? cloneMessages : killMessages;
-    return messages.getRandomElement().replace(/\$NUMWEEBS/g, numweebs);
+    return messages.getRandomElement().replace(/\$NUMWEEBS/g, getNumWeebs(num));
 }
 
 function initUser(displayname: string, id: string): User {
@@ -91,6 +95,7 @@ function initUser(displayname: string, id: string): User {
         cagedweebs: 0,
         killedweebs: 0,
         lasthunt: 0,
+        lastfeed: 0,
         lastmsg: new Date().getTime()
     };
     users.push(newUser);
@@ -131,7 +136,7 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
 
             if (sinceLastHunt < hwCooldown && (user.cagedweebs > 0 || user.killedweebs > 0)) {
                 const remaining = hwCooldown - sinceLastHunt;
-                client.say(target, `${context.username}, you already hunted some weebs recently, come back in ${utils.msToMins(remaining)} GachiPls`);
+                client.say(target, `${user.displayname}, you already hunted some weebs recently, come back in ${utils.msToMins(remaining)} GachiPls`);
             }
             else {
                 const result = Math.floor(Math.random() * 70) + 50;
@@ -139,7 +144,7 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
                 user.lasthunt = now;
                 utils.writeJson(usersPath, users);
                 sortUsers();
-                client.say(target, `${context.username}, you caught ${result} weebs and you now have ${user.cagedweebs} in the cage. Type ^kw (#) to slaughter them! NaM`);
+                client.say(target, `${user.displayname}, you caught ${result} weebs and you now have ${user.cagedweebs} in the cage. Type ^kw (#) to slaughter them! NaM`);
             }
             break;
 
@@ -148,10 +153,10 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
             const num = words[1] == 'all' ? user.cagedweebs : parseInt(words[1]);
 
             if (!num || num <= 0) {
-                client.say(target, `${context.username}, invalid number of weebs hackerCD`);
+                client.say(target, `${user.displayname}, invalid number of weebs hackerCD`);
             }
             else if (user.cagedweebs < num) {
-                client.say(target, `${context.username}, you only have ${user.cagedweebs} in the cage. hackerCD`);
+                client.say(target, `${user.displayname}, you only have ${user.cagedweebs} in the cage. hackerCD`);
             }
             else {
                 const clone = Math.random() < cloneProbability;
@@ -165,7 +170,27 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
                 }
 
                 utils.writeJson(usersPath, users);
-                client.say(target, `${context.username}, ${getRandomKwMsg(num, clone)} There are now ${user.cagedweebs} weebs in the cage. ${clone ? 'FeelsBadMan' : 'FeelsGoodMan'}`);
+                client.say(target, `${user.displayname}, ${getRandomKwMsg(num, clone)} There are now ${user.cagedweebs} weebs in the cage. ${clone ? 'FeelsBadMan' : 'FeelsGoodMan'}`);
+            }
+            break;
+        
+        case '^feedweebs':
+        case '^fw':
+            const sinceLastFeed = now - user.lastfeed;
+            if (user.cagedweebs < 50) {
+                client.say(target, `${user.displayname}, you need at least 50 weebs to feed them!`);
+            }
+            else if (sinceLastFeed < fwCooldown) {
+                const remaining = fwCooldown - sinceLastFeed;
+                client.say(target, `${user.displayname}, you already fed your weebs recently, come back in ${utils.msToHrs(remaining)}.`);
+            }
+            else {
+                const growthFactor = 0.02 + Math.random() * 0.02;
+                const newCagedWeebs = user.cagedweebs + Math.floor(user.cagedweebs * growthFactor);
+                client.say(target, `${user.displayname}, you fed your ${getNumWeebs(user.cagedweebs)} and they increased by ${(growthFactor * 100).toFixed(1)}%. You now have ${newCagedWeebs} in the cage.`);
+                user.cagedweebs = newCagedWeebs;
+                user.lastfeed = now;
+                utils.writeJson(usersPath, users);
             }
             break;
 
@@ -173,12 +198,12 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
         case '^weebrank':
         case '^weebs':
             const rank = users.findIndex(x => x.id == userId) + 1;
-            client.say(target, `${context.username}, you have ${user.cagedweebs} ${user.cagedweebs == 1 ? 'weeb' : 'weebs'} in the cage and you've killed ${user.killedweebs} of them, placing you at a global #${rank}! hackerCD`);
+            client.say(target, `${user.displayname}, you have ${getNumWeebs(user.cagedweebs)} in the cage and you've killed ${user.killedweebs} of them, placing you at a global #${rank}! hackerCD`);
             break;
 
         case '^help':
         case '^commands':
-            client.say(target, `Commands: ^huntweebs, ^hw, ^killweebs, ^kw, ^weebrank, ^weebs, ^top${numberOfLeaders}. global CD ${Math.ceil(globalCooldown / 1000)}s, user CD ${Math.ceil(userCooldown / 1000)}s. points = caged + killed.`)
+            client.say(target, `Commands: ^hw, ^kw, ^fw, ^weebrank, ^weebs, ^top${numberOfLeaders}. global CD ${Math.ceil(globalCooldown / 1000)}s, user CD ${Math.ceil(userCooldown / 1000)}s. points = caged + killed.`)
             break;
 
         case '!nam_the_weebs_bot':

@@ -6,6 +6,7 @@ declare module 'BotTypes' {
         killedweebs: number;
         lasthunt: number;
         lastmsg: number;
+        lastfeed: number;
     }
 
     export type ClientInfo = [

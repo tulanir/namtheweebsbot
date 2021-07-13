@@ -19,6 +19,11 @@ export function msToMins(ms: number) {
     else return `${Math.floor(secs / 60)}m${secs % 60}s`;
 }
 
+export function msToHrs(ms: number) {
+    if (ms < 3600000) return msToMins(ms);
+    else return `${Math.floor(ms / 3600000)}h${msToMins(ms % 3600000)}`;
+}
+
 export function readJson(filename: string): any {
     return JSON.parse(fs.readFileSync(filename).toString());
 }
