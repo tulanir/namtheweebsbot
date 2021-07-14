@@ -178,7 +178,7 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
         case '^fw':
             const sinceLastFeed = now - user.lastfeed;
             if (user.cagedweebs < 50) {
-                client.say(target, `${user.displayname}, you need at least 50 weebs to feed them!`);
+                client.say(target, `${user.displayname}, you need at least 50 weebs to feed them! (Type ^hw to hunt weebs)`);
             }
             else if (sinceLastFeed < fwCooldown) {
                 const remaining = fwCooldown - sinceLastFeed;
@@ -186,8 +186,8 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
             }
             else {
                 const growthFactor = 0.02 + Math.random() * 0.02;
-                const newCagedWeebs = user.cagedweebs + Math.floor(user.cagedweebs * growthFactor);
-                client.say(target, `${user.displayname}, you fed your ${getNumWeebs(user.cagedweebs)} and they increased by ${(growthFactor * 100).toFixed(1)}%. You now have ${newCagedWeebs} in the cage.`);
+                const newCagedWeebs = user.cagedweebs + Math.round(user.cagedweebs * growthFactor);
+                client.say(target, `${user.displayname}, you fed your ${getNumWeebs(user.cagedweebs)} and they increased by ${(growthFactor * 100).toFixed(1)}% forsenScoots You now have ${getNumWeebs(newCagedWeebs)} in the cage.`);
                 user.cagedweebs = newCagedWeebs;
                 user.lastfeed = now;
                 utils.writeJson(usersPath, users);

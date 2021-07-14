@@ -4,4 +4,3 @@ uncensoredclientinfo.json
 transform.js
 curlheaders.txt
 users/*
-!users/users.json
