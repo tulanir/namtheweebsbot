@@ -197,12 +197,12 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
         case '^weebs':
             sortUsers();
             const rank = users.findIndex(x => x.id == userId) + 1;
-            client.say(target, `${user.displayname}, you have killed ${getNumWeebs(user.killedweebs)}, placing you at a global #${rank}! hackerCD`);
+            client.say(target, `${user.displayname}, you have ${getNumWeebs(user.cagedweebs)} in the cage. You've killed ${user.killedweebs} of them, placing you at a global #${rank}! hackerCD`);
             break;
 
         case '^help':
         case '^commands':
-            client.say(target, `Commands: ^hw, ^kw, ^fw, ^weebrank, ^weebs, ^top${numberOfLeaders}. global CD ${Math.ceil(globalCooldown / 1000)}s, user CD ${Math.ceil(userCooldown / 1000)}s.`)
+            client.say(target, `Commands: ^hw/^huntweebs, ^kw/^killweebs, ^fw/^feedweebs, ^weebrank/^weebs, ^top${numberOfLeaders}/^leaderboard. global CD ${Math.ceil(globalCooldown / 1000)}s, user CD ${Math.ceil(userCooldown / 1000)}s.`)
             break;
 
         case '!nam_the_weebs_bot':
@@ -215,7 +215,7 @@ async function onMessageHandler(target: string, context: any, msg: string, self:
         case '^leaderboard':
             sortUsers();
             const message = users.slice(0, numberOfLeaders)
-                .reduce((a, v, i) => a + ` ${i + 1}: ${v.displayname}, ${v.cagedweebs + v.killedweebs}p.`,
+                .reduce((a, v, i) => a + ` #${i + 1}: ${v.displayname}, ${v.killedweebs} kills.`,
                     `champions' leaderboard forsenCD`);;
             client.say(target, message);
             break;
